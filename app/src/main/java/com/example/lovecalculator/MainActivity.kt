@@ -2,6 +2,7 @@ package com.example.lovecalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import com.example.lovecalculator.api.LoveRequester
 import com.example.lovecalculator.data.LoveCalculationResult
@@ -23,6 +24,26 @@ class MainActivity : AppCompatActivity() {
             response?.isSuccessful.let {
                 tv_percentage.text = response.body()?.percentage
                 tv_result.text = response.body()?.result
+                tv_result.visibility = View.VISIBLE
+                tv_percentage.visibility = View.VISIBLE
+
+                response.body()?.percentage?.let {
+                    Thread(Runnable {
+                        var i = 0
+                        while (i < response.body()?.percentage!!.toInt()) {
+                            pb_score.progress = i
+                            i += 1
+
+                            try {
+                                Thread.sleep(100)
+                            } catch (e: InterruptedException) {
+                                e.printStackTrace()
+                            }
+
+
+                        }
+                    }).start()
+                }
             }
         }
 
@@ -35,9 +56,16 @@ class MainActivity : AppCompatActivity() {
         btn_hitme.setOnClickListener {
             if (et_fname.text.isEmpty() || et_sname.text.isEmpty()) {
                 Toast.makeText(this@MainActivity, "Insert proper names", Toast.LENGTH_LONG).show()
+                pb_score.progress = 0
             } else {
                 loveRequester.getPercentage(callback, et_fname.text.toString(), et_sname.text.toString())
             }
         }
+    }
+}
+
+class callbackResult {
+    companion object {
+        var response: Int = 0
     }
 }
